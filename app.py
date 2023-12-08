@@ -1,6 +1,7 @@
 from flask import Flask, request
 from db import stores, items
 import uuid
+from flask_smorest import abort
 
 app = Flask(__name__)
 
@@ -12,6 +13,15 @@ def get_stores():
 @app.post("/store")
 def create_store():
     store_data = request.get_json()
+    if ("name" not in store_data):
+        abort(
+            400,
+            message="Bad request. Ensure 'name' is included in the store data entered"
+        )
+    
+    for store in stores.values():
+        if store_data["name"] == store["name"]:
+            abort(400, message="Store alreay exists") 
     # create unique id for each store
     store_id =  uuid.uuid4().hex
     store = {**store_data, "id": store_id}
@@ -23,14 +33,30 @@ def create_store():
 def create_item():
     item_data = request.get_json()
     
+    if (
+        "price" not in item_data
+        or "store_id" not in item_data
+        or "price" not in item_data
+        ):
+        abort(400, 
+              message="Bad request. Ensure 'price' 'store_id' and 'price' are included in your request"
+              )
+    for item in items.values():
+        if (
+            item["name"] == item_data["names"]
+            and  item["store_id"] == item_data["store_id"]
+        ):
+            abort(400, message="Item already exists")        
+        
     if item_data["store_id"] not in stores:
-        return {"message":"store not found"}, 404
+        abort(404, message="store not found")
     
     item_id = uuid.uuid4().hex
     item = {**item_data, "id": item_id}
     items[item_id] = item
     
     return item
+
 
 @app.get("/item")
 def get_all_item():
@@ -42,7 +68,7 @@ def get_store(store_id):
     try:
         return stores[store_id]
     except KeyError:
-        return {"message":"store not found"}, 404
+        abort(404, message="Store not found.")
 
 
 @app.get("/item/<string:item_id>")
@@ -50,7 +76,7 @@ def get_item(item_id):
     try:
         return items[item_id]
     except KeyError:
-        return {"message": "Item not found"}, 404
+        abort(404, message="Item not found")
             
             
 
