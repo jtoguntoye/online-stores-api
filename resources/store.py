@@ -3,6 +3,7 @@ from db import stores
 import uuid
 from flask.views import MethodView
 from flask_smorest import abort, Blueprint
+from schemas import StoreSchema
 
 blp = Blueprint("stores", __name__, description="Operations on Stores")
 
@@ -28,14 +29,9 @@ class StoreList(MethodView):
     def get(self):
         return {"stores": list(stores.values())}
     
-    def post(self):
-        store_data = request.get_json()
-        if ("name" not in store_data):
-            abort(
-            400,
-            message="Bad request. Ensure 'name' is included in the store data entered"
-            )
-    
+    @blp.arguments(StoreSchema)
+    def post(cls, store_data):
+        
         for store in stores.values():
            if store_data["name"] == store["name"]:
                abort(400, message="Store already exists") 
@@ -44,4 +40,4 @@ class StoreList(MethodView):
         store = {**store_data, "id": store_id}
         stores[store_id] = store
     
-        return store, 201
+        return store

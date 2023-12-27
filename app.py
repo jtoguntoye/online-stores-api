@@ -1,7 +1,7 @@
 from flask import Flask, request
 from flask_smorest import Api
 
-from resources.items import blp as ItemBlueprint
+from resources.item import blp as ItemBlueprint
 from resources.store import blp as StoreBlueprint
 app = Flask(__name__)
 
