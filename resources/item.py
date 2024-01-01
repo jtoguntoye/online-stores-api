@@ -35,6 +35,7 @@ class Item(MethodView):
         try:
            item = items[item_id]
            item |= item_data
+           
            return item
         except KeyError:
            abort(404, message="Item not found")
