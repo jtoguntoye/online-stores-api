@@ -1,5 +1,6 @@
 from flask import Flask, request
 from db import stores
+
 import uuid
 from flask.views import MethodView
 from flask_smorest import abort, Blueprint
@@ -70,3 +71,15 @@ class ItemList(MethodView):
         items[item_id] = item
     
         return item
+     
+     
+from db import db
+
+class ItemModel(db.Model):
+   __tablename__ = "items"
+   
+   id  = db.Column(db.Integer, primary_key=True)
+   name = db.Column(db.String(80), unique=True, nullable=False)
+   price = db.Column(db.Float(precision=2), unique=False, nullable=False)
+   store_id = db.Column(db.Integer, unique=False, nullable=False)
+   
